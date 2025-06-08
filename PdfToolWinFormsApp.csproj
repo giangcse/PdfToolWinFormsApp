@@ -6,7 +6,28 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>pdf-file-format.ico</ApplicationIcon>
+    <Title>PDF Toolkit</Title>
+    <Authors>giangcse@VNPT</Authors>
+    <Company>VNPT-VLG</Company>
+    <Product>PDF Toolkit</Product>
+    <Description>Bộ công cụ xử lý PDF phục vụ số hóa dữ liệu</Description>
+    <PackageProjectUrl>https://github.com/giangcse/PdfToolWinFormsApp</PackageProjectUrl>
+    <PackageIcon>pdf-file-format.png</PackageIcon>
+    <RepositoryUrl>https://github.com/giangcse/PdfToolWinFormsApp</RepositoryUrl>
+    <AssemblyName>PDF Toolkit</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="pdf-file-format.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\Downloads\pdf-file-format.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />

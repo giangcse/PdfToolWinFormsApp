@@ -58,11 +58,29 @@ namespace PdfToolWinFormsApp
             }
             else if (feature == "Đổi tên sau Ký số")
             {
-                await Task.Run(() => GroupPdfByPrefix(folder));
-            }    
+                // ✏️ MỚI: Tìm tất cả thư mục Unknown trong thư mục gốc
+                var unknownFolders = Directory.GetDirectories(folder, "Unknown", SearchOption.AllDirectories);
 
-                MessageBox.Show("Hoàn thành!", "Thông báo");
+                if (unknownFolders.Length == 0)
+                {
+                    Log("Không tìm thấy thư mục Unknown nào!");
+                }
+                else
+                {
+                    int total = unknownFolders.Length;
+                    int count = 0;
+                    foreach (var unknownPath in unknownFolders)
+                    {
+                        count++;
+                        Log($"[{count}/{total}] Xử lý: {unknownPath}");
+                        GroupPdfByPrefix(unknownPath);
+                    }
+                }
+            }
+
+            MessageBox.Show("Hoàn thành!", "Thông báo");
         }
+
 
         private void Log(string message)
         {
@@ -263,9 +281,10 @@ namespace PdfToolWinFormsApp
         }
 
         // ---------- Đổi tên sau Ký số ----------
-        private void GroupPdfByPrefix(string rootDirectory)
+        private void GroupPdfByPrefix(string unknownPath)
         {
-            var pdfFiles = Directory.GetFiles(rootDirectory, "*.pdf", SearchOption.AllDirectories);
+            // 1️⃣ Di chuyển file PDF vào thư mục prefix
+            var pdfFiles = Directory.GetFiles(unknownPath, "*.pdf", SearchOption.AllDirectories);
             int totalFiles = pdfFiles.Length;
             int processed = 0;
 
@@ -299,16 +318,54 @@ namespace PdfToolWinFormsApp
                 progressBar.Invoke(new Action(() => progressBar.Value = percent));
             }
 
-            Log("Hoàn thành di chuyển các file PDF.");
+            Log("✅ Đã di chuyển file PDF xong. Bắt đầu di chuyển thư mục con của Unknown ra ngoài...");
+
+            // 2️⃣ LẤY ĐÚNG thư mục cha của Unknown (tuyệt đối)
+            string parentOfUnknown = new DirectoryInfo(unknownPath).Parent.FullName;
+
+            // 3️⃣ Di chuyển các thư mục con của Unknown ra ngoài (ngang cấp Unknown)
+            var subFolders = Directory.GetDirectories(unknownPath, "*", SearchOption.TopDirectoryOnly);
+
+            foreach (var subFolder in subFolders)
+            {
+                string folderName = Path.GetFileName(subFolder);
+                string targetPath = Path.Combine(parentOfUnknown, folderName);
+
+                try
+                {
+                    if (Directory.Exists(targetPath))
+                        Directory.Delete(targetPath, true); // Xóa nếu tồn tại
+
+                    Directory.Move(subFolder, targetPath);
+                    Log($"Đã di chuyển thư mục: {subFolder} -> {targetPath}");
+                }
+                catch (Exception ex)
+                {
+                    Log($"Lỗi di chuyển {subFolder}: {ex.Message}");
+                }
+            }
+
+            // 4️⃣ Xóa thư mục Unknown
+            try
+            {
+                Directory.Delete(unknownPath, true);
+                Log($"Đã xóa thư mục Unknown: {unknownPath}");
+            }
+            catch (Exception ex)
+            {
+                Log($"Lỗi xóa thư mục Unknown: {ex.Message}");
+            }
+
+            Log("🎉 Hoàn thành: Di chuyển thư mục con ra ngoài và xóa thư mục Unknown!");
         }
 
         // Lấy prefix: ví dụ "001-02-0001-xx" -> "001-02-0001"
         private string GetPrefix(string fileName)
         {
             var parts = fileName.Split('-');
-            if (parts.Length < 4) return null;
+            if (parts.Length < 5) return null;
 
-            return string.Join("-", parts.Take(3));
+            return string.Join("-", parts.Take(4));
         }
 
     }

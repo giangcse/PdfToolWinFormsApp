@@ -14,6 +14,7 @@
 
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             lblFolder = new Label();
             txtFolder = new TextBox();
             btnBrowse = new Button();
@@ -87,6 +88,7 @@
             // 
             // Form1
             // 
+            AllowDrop = true;
             ClientSize = new Size(534, 325);
             Controls.Add(progressBar);
             Controls.Add(txtLog);
@@ -95,8 +97,10 @@
             Controls.Add(btnBrowse);
             Controls.Add(txtFolder);
             Controls.Add(lblFolder);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
-            Text = "PDF Tool App";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "PDF Toolkit hố trợ số hóa hồ sơ";
             ResumeLayout(false);
             PerformLayout();
         }
