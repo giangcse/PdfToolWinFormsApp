@@ -1,4 +1,4 @@
-# 📁 PdfToolWinFormsApp
+﻿# 📁 PdfToolWinFormsApp
 
 Đây là một ứng dụng **WinForms** hỗ trợ làm việc với các file PDF, gồm 3 tính năng chính:
 
@@ -26,6 +26,7 @@
   - **PdfSharp**
   - **Spire.PDF**
   - **ClosedXML**
+- Ghostscript (để xử lý PDF, nếu cần)[https://ghostscript.com/releases/gsdnld.html]
 
 ---
 

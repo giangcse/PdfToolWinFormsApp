@@ -77,6 +77,11 @@ namespace PdfToolWinFormsApp
                     }
                 }
             }
+            else if (feature == "Nén PDF >100MB")
+            {
+                await Task.Run(() => CompressLargePdfFiles(folder));
+            }
+
 
             MessageBox.Show("Hoàn thành!", "Thông báo");
         }
@@ -366,6 +371,92 @@ namespace PdfToolWinFormsApp
             if (parts.Length < 5) return null;
 
             return string.Join("-", parts.Take(4));
+        }
+
+
+        // ---------- Nén PDF >100MB ----------
+        private void CompressLargePdfFiles(string rootDirectory)
+        {
+            var pdfFiles = Directory.GetFiles(rootDirectory, "*.pdf", SearchOption.AllDirectories);
+            List<(string Path, double SizeMB)> largeFiles = new();
+
+            int processed = 0;
+            int totalFiles = pdfFiles.Length;
+
+            foreach (var file in pdfFiles)
+            {
+                FileInfo fi = new FileInfo(file);
+                double sizeMB = fi.Length / (1024.0 * 1024.0);
+
+                if (sizeMB > 100)
+                {
+                    largeFiles.Add((file, sizeMB));
+                    Log($"🔴 File lớn: {file} ({sizeMB:F2} MB)");
+
+                    // Nén bằng Ghostscript
+                    string compressedTempFile = file + ".compressed.pdf";
+                    CompressPdfWithGhostscript(file, compressedTempFile);
+
+                    // Ghi đè file cũ nếu nén thành công
+                    if (File.Exists(compressedTempFile))
+                    {
+                        File.Delete(file);
+                        File.Move(compressedTempFile, file);
+                        Log($"✅ Đã nén: {file}");
+                    }
+                }
+
+                processed++;
+                int percent = (int)((double)processed / totalFiles * 100);
+                progressBar.Invoke(new Action(() => progressBar.Value = percent));
+            }
+
+            // Xuất Excel danh sách file lớn
+            ExportCompressedFilesExcel(largeFiles);
+            Log("🎉 Hoàn thành: Đã nén các file lớn và lưu danh sách vào CompressedFiles.xlsx");
+        }
+
+        private void CompressPdfWithGhostscript(string inputFile, string outputFile)
+        {
+            string ghostscriptPath = @"C:\Program Files\gs\gs10.05.1\bin\gswin64c.exe"; // Đường dẫn Ghostscript
+            string arguments = $"-sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=\"{outputFile}\" \"{inputFile}\"";
+
+            var psi = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = ghostscriptPath,
+                Arguments = arguments,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            using (var process = System.Diagnostics.Process.Start(psi))
+            {
+                process.WaitForExit();
+                string error = process.StandardError.ReadToEnd();
+                if (!string.IsNullOrEmpty(error))
+                    Log($"⚠️ Ghostscript: {error}");
+            }
+        }
+
+        private void ExportCompressedFilesExcel(List<(string Path, double SizeMB)> list)
+        {
+            string outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CompressedFiles.xlsx");
+            using (var workbook = new XLWorkbook())
+            {
+                var ws = workbook.Worksheets.Add("Compressed Files");
+                ws.Cell(1, 1).Value = "Đường dẫn";
+                ws.Cell(1, 2).Value = "Kích thước (MB)";
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    ws.Cell(i + 2, 1).Value = list[i].Path;
+                    ws.Cell(i + 2, 2).Value = list[i].SizeMB;
+                }
+
+                workbook.SaveAs(outputPath);
+            }
         }
 
     }
