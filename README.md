@@ -7,7 +7,7 @@
 ## 🗂 Thông tin phần mềm
 - **Tên**: PDF Tool WinForms App
 - **Phiên bản**: 1.0.0
-- **Tác giả**: [Tên của bạn hoặc công ty]
+- **Tác giả**: @giangcse
 - **Hỗ trợ**: Windows (WinForms)
 - **Ngày phát hành**: 2025-06-08
 
@@ -52,10 +52,6 @@
 
 👉 Kết quả: file Excel (`Result.xlsx` hoặc `CompressedFiles.xlsx`) và file `FileTong.pdf` sẽ được xuất ngay trong thư mục.
 
----
-
-## 🎨 Banner
-<img src="banner.png" alt="Banner" width="100%">
 
 ---
 
