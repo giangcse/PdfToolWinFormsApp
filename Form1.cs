@@ -188,7 +188,9 @@ namespace PdfToolWinFormsApp
 
         private void ExportToExcel(List<(string DirectoryName, string Name, int PageCount, int A0, int A1, int A2, int A3, int A4)> results)
         {
-            string outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Result.xlsx");
+            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            string outputPath = Path.Combine(desktopPath, "Result.xlsx");
+
             using (var workbook = new XLWorkbook())
             {
                 var ws = workbook.Worksheets.Add("Results");
@@ -216,6 +218,8 @@ namespace PdfToolWinFormsApp
 
                 workbook.SaveAs(outputPath);
             }
+
+            Log($"✅ Đã lưu file Excel ở Desktop: {outputPath}");
         }
 
         // ---------- Gộp PDF ----------
@@ -424,7 +428,8 @@ namespace PdfToolWinFormsApp
 
         private bool CompressPdfWithGhostscript(string inputFile, string outputFile)
         {
-            string ghostscriptPath = @"C:\Program Files\gs\gs10.05.1\bin\gswin64c.exe"; // Đường dẫn Ghostscript
+            string ghostscriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "gs", "gs10.05.1", "bin", "gswin64c.exe");
+
             if (!File.Exists(ghostscriptPath))
             {
                 Log("❌ Không tìm thấy Ghostscript!");
@@ -466,7 +471,9 @@ namespace PdfToolWinFormsApp
                 return;
             }
 
-            string outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CompressedFiles.xlsx");
+            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            string outputPath = Path.Combine(desktopPath, "CompressedFiles.xlsx");
+
             using (var workbook = new XLWorkbook())
             {
                 var ws = workbook.Worksheets.Add("Compressed Files");
@@ -482,8 +489,9 @@ namespace PdfToolWinFormsApp
                 workbook.SaveAs(outputPath);
             }
 
-            Log($"✅ Đã lưu danh sách file lớn vào: {outputPath}");
+            Log($"✅ Đã lưu danh sách file lớn ở Desktop: {outputPath}");
         }
+
 
     }
 }
