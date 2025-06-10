@@ -72,4 +72,4 @@
 ---
 
 🎉 Chúc bạn sử dụng thành công!  
-**Mọi vấn đề hoặc yêu cầu hỗ trợ** → Liên hệ [email của bạn].
+**Mọi vấn đề hoặc yêu cầu hỗ trợ** → Liên hệ [giangpt@duck.com].
