@@ -22,6 +22,7 @@
             btnRun = new Button();
             txtLog = new TextBox();
             progressBar = new ProgressBar();
+            label1 = new Label();
             SuspendLayout();
             // 
             // lblFolder
@@ -86,10 +87,21 @@
             progressBar.Size = new Size(500, 23);
             progressBar.TabIndex = 6;
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(15, 48);
+            label1.Name = "label1";
+            label1.Size = new Size(56, 15);
+            label1.TabIndex = 7;
+            label1.Text = "Thao tác:";
+            // 
             // Form1
             // 
             AllowDrop = true;
+            AutoSize = true;
             ClientSize = new Size(534, 325);
+            Controls.Add(label1);
             Controls.Add(progressBar);
             Controls.Add(txtLog);
             Controls.Add(btnRun);
@@ -114,5 +126,6 @@
         private System.Windows.Forms.Button btnRun;
         private System.Windows.Forms.TextBox txtLog;
         private System.Windows.Forms.ProgressBar progressBar;
+        private Label label1;
     }
 }
