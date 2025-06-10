@@ -16,6 +16,7 @@
     <PackageIcon>pdf-file-format.png</PackageIcon>
     <RepositoryUrl>https://github.com/giangcse/PdfToolWinFormsApp</RepositoryUrl>
     <AssemblyName>PDF Toolkit</AssemblyName>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,6 +34,13 @@
     <PackageReference Include="ClosedXML" Version="0.105.0" />
     <PackageReference Include="PDFsharp" Version="6.2.0" />
     <PackageReference Include="Spire.PDF" Version="11.5.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

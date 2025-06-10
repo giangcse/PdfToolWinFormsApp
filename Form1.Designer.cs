@@ -54,7 +54,7 @@
             // 
             cboFeature.DropDownStyle = ComboBoxStyle.DropDownList;
             cboFeature.FormattingEnabled = true;
-            cboFeature.Items.AddRange(new object[] { "Đếm số trang PDF", "Gộp PDF", "Đổi tên sau Ký số", "Nén PDF trên 100MB" });
+            cboFeature.Items.AddRange(new object[] { "Đếm số trang PDF", "Gộp PDF", "Đổi tên sau Ký số", "Nén PDF >100MB" });
             cboFeature.Location = new Point(105, 45);
             cboFeature.Name = "cboFeature";
             cboFeature.Size = new Size(329, 23);

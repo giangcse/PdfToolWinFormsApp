@@ -56,6 +56,10 @@ namespace PdfToolWinFormsApp
             {
                 await Task.Run(() => MergePdfInFolders(folder));
             }
+            else if (feature == "Nén PDF >100MB")
+            {
+                await Task.Run(() => CompressLargePdfFiles(folder));
+            }
             else if (feature == "Đổi tên sau Ký số")
             {
                 // ✏️ MỚI: Tìm tất cả thư mục Unknown trong thư mục gốc
@@ -77,11 +81,6 @@ namespace PdfToolWinFormsApp
                     }
                 }
             }
-            else if (feature == "Nén PDF >100MB")
-            {
-                await Task.Run(() => CompressLargePdfFiles(folder));
-            }
-
 
             MessageBox.Show("Hoàn thành!", "Thông báo");
         }
@@ -394,15 +393,21 @@ namespace PdfToolWinFormsApp
                     Log($"🔴 File lớn: {file} ({sizeMB:F2} MB)");
 
                     // Nén bằng Ghostscript
-                    string compressedTempFile = file + ".compressed.pdf";
-                    CompressPdfWithGhostscript(file, compressedTempFile);
+                    string compressedTempFile = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "_compressed.pdf");
+                    bool compressSuccess = CompressPdfWithGhostscript(file, compressedTempFile);
 
-                    // Ghi đè file cũ nếu nén thành công
-                    if (File.Exists(compressedTempFile))
+                    if (compressSuccess && File.Exists(compressedTempFile))
                     {
-                        File.Delete(file);
-                        File.Move(compressedTempFile, file);
-                        Log($"✅ Đã nén: {file}");
+                        try
+                        {
+                            File.Delete(file); // Xóa file gốc
+                            File.Move(compressedTempFile, file); // Ghi đè file cũ
+                            Log($"✅ Đã nén và ghi đè: {file}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Log($"Lỗi khi ghi đè file: {ex.Message}");
+                        }
                     }
                 }
 
@@ -411,15 +416,22 @@ namespace PdfToolWinFormsApp
                 progressBar.Invoke(new Action(() => progressBar.Value = percent));
             }
 
-            // Xuất Excel danh sách file lớn
+            // Xuất file Excel
             ExportCompressedFilesExcel(largeFiles);
-            Log("🎉 Hoàn thành: Đã nén các file lớn và lưu danh sách vào CompressedFiles.xlsx");
+            Log("🎉 Hoàn thành nén file lớn và lưu danh sách vào CompressedFiles.xlsx!");
         }
 
-        private void CompressPdfWithGhostscript(string inputFile, string outputFile)
+
+        private bool CompressPdfWithGhostscript(string inputFile, string outputFile)
         {
             string ghostscriptPath = @"C:\Program Files\gs\gs10.05.1\bin\gswin64c.exe"; // Đường dẫn Ghostscript
-            string arguments = $"-sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=\"{outputFile}\" \"{inputFile}\"";
+            if (!File.Exists(ghostscriptPath))
+            {
+                Log("❌ Không tìm thấy Ghostscript!");
+                return false;
+            }
+
+            string arguments = $"-sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH -sOutputFile=\"{outputFile}\" \"{inputFile}\"";
 
             var psi = new System.Diagnostics.ProcessStartInfo
             {
@@ -433,15 +445,27 @@ namespace PdfToolWinFormsApp
 
             using (var process = System.Diagnostics.Process.Start(psi))
             {
-                process.WaitForExit();
                 string error = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+
                 if (!string.IsNullOrEmpty(error))
+                {
                     Log($"⚠️ Ghostscript: {error}");
+                }
+
+                return process.ExitCode == 0;
             }
         }
 
+
         private void ExportCompressedFilesExcel(List<(string Path, double SizeMB)> list)
         {
+            if (list.Count == 0)
+            {
+                Log("Không có file PDF nào lớn hơn 100MB để nén!");
+                return;
+            }
+
             string outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CompressedFiles.xlsx");
             using (var workbook = new XLWorkbook())
             {
@@ -457,6 +481,8 @@ namespace PdfToolWinFormsApp
 
                 workbook.SaveAs(outputPath);
             }
+
+            Log($"✅ Đã lưu danh sách file lớn vào: {outputPath}");
         }
 
     }
